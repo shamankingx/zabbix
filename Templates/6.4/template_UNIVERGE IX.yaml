@@ -1,0 +1,340 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 36bff6c29af64692839d077febfc7079
+      name: 'Templates/Network devices'
+    - uuid: 1d12408342854fd5a4436dd6d5d1bd4a
+      name: Templates/Telephony
+  templates:
+    - uuid: 97f18782a5514adfa99ee5d77c0ab319
+      template: 'UNIVERGE IX'
+      name: 'UNIVERGE IX'
+      templates:
+        - name: 'Template Module EtherLike-MIB SNMP'
+        - name: 'Template Module Generic SNMP'
+        - name: 'Template Module Interfaces SNMP'
+      groups:
+        - name: 'Templates/Network devices'
+        - name: Templates/Telephony
+      items:
+        - uuid: 30c3fe5556984082a05e6ea9dfeb1a82
+          name: Temperature
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.2.1.1.0
+          key: pico.Celsius
+          delay: 3m
+          history: 2w
+          trends: '0'
+          units: °C
+          tags:
+            - tag: Application
+              value: Hardware
+          triggers:
+            - uuid: 45fb0d91cb844a83bc946895d844ff4f
+              expression: 'avg(/UNIVERGE IX/pico.Celsius,5s)>{$HIGH_TEMP_WARN}'
+              name: '{HOST.NAME} is High Temperature over {$HIGH_TEMP_WARN}℃.'
+              priority: HIGH
+        - uuid: f7421b025bd04531937b88146e8fff47
+          name: 'Total Heap Memory Size'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.2.6.1.0
+          key: pico.Heap.Size
+          history: 2w
+          trends: '0'
+          units: byte
+          tags:
+            - tag: Application
+              value: System
+        - uuid: 2a38ae418e7e4f6ab0ca41ee47cd2afa
+          name: 'Memory Utilization'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.2.6.2.0
+          key: pico.Heap.Util
+          history: 2w
+          trends: '0'
+          units: '%'
+          tags:
+            - tag: Application
+              value: System
+          triggers:
+            - uuid: d99187cda79449eebc9873aa44b4f43f
+              expression: 'last(/UNIVERGE IX/pico.Heap.Util)>=80'
+              name: 'High Memory utilization (over {$MEM_WARN}% for 1m)'
+              priority: WARNING
+        - uuid: f8fd2f67908d4661839aeba14f381e05
+          name: 'IPv4 UFS Cache Creates'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.12.2.3.0
+          key: pico.IPv4UFSCache.Creates
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv4 UFS Cache'
+        - uuid: 1ab7e22ed3fb46f7a77b9dee6cba3e95
+          name: 'IPv4 UFS Cache Entries'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.12.2.1.0
+          key: pico.IPv4UFSCache.Entries
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv4 UFS Cache'
+        - uuid: c84c8cfa145447e794b8d38675965701
+          name: 'IPv4 UFS Cache Overflows'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.12.2.4.0
+          key: pico.IPv4UFSCache.Overflows
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv4 UFS Cache'
+          triggers:
+            - uuid: a5bf76bd98764ad8ab55e60dade617a9
+              expression: 'last(/UNIVERGE IX/pico.IPv4UFSCache.Overflows)>0'
+              name: 'IPv4 UFS Cache Overflows'
+              priority: AVERAGE
+        - uuid: 221f6733b9924758b05e4fe845a0b1d0
+          name: 'IPv4 UFS Cache Peaks'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.12.2.2.0
+          key: pico.IPv4UFSCache.Peaks
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv4 UFS Cache'
+        - uuid: a68164ec2229483a8bfbba9d71d4ecd8
+          name: 'IPv6 UFS Cache Creates'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.13.2.3.0
+          key: pico.IPv6UFSCache.Creates
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv6 UFS Cache'
+        - uuid: 77ce6800dba3401b8418720fb184e6e3
+          name: 'IPv6 UFS Cache Entries'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.13.2.1.0
+          key: pico.IPv6UFSCache.Entries
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv6 UFS Cache'
+        - uuid: ead87c36e3944bd39e227727be289b93
+          name: 'IPv6 UFS Cache Overflows'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.13.2.4.0
+          key: pico.IPv6UFSCache.Overflows
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv6 UFS Cache'
+          triggers:
+            - uuid: 0e35b757db714bdca72b0110137807e6
+              expression: 'last(/UNIVERGE IX/pico.IPv6UFSCache.Overflows)>0'
+              name: 'IPv6 UFS Cache Overflows'
+              priority: AVERAGE
+        - uuid: 7c393d4b9ceb47ba916633a9d1f2d2b6
+          name: 'IPv6 UFS Cache Peaks'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.13.2.2.0
+          key: pico.IPv6UFSCache.Peaks
+          history: 2w
+          trends: '0'
+          tags:
+            - tag: Application
+              value: 'IPv6 UFS Cache'
+        - uuid: 310c88898e7c4e04964258f71e494a99
+          name: 'CPU Utilization for 1min'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.2.5.3.0
+          key: pico.SchedRtUtl.1Min
+          history: 2w
+          trends: '0'
+          units: '%'
+          tags:
+            - tag: Application
+              value: System
+          triggers:
+            - uuid: 0dfd65997c2545d38afd998927211b1d
+              expression: 'last(/UNIVERGE IX/pico.SchedRtUtl.1Min)>{$CPU_WARN}'
+              name: 'High CPU utilization (over {$CPU_WARN}% for 1m)'
+              priority: WARNING
+        - uuid: 6ed254062d524b61a0236dc3fa5bbaf3
+          name: Voltage
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.119.2.3.84.2.2.0
+          key: pico.Voltage
+          delay: 5m
+          history: 2w
+          trends: '0'
+          value_type: FLOAT
+          units: V
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+          tags:
+            - tag: Application
+              value: Hardware
+      discovery_rules:
+        - uuid: a581c20b0c16463cb2d218da8707cad7
+          name: 'NAPT Cache'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#IFNAME},.1.3.6.1.4.1.119.2.3.84.15.1.1.1.1]'
+          key: 'naptCache.[{#IFNAME}]'
+          status: DISABLED
+          item_prototypes:
+            - uuid: 37f3f181e2dc4451a8bb4d798fde7e6e
+              name: 'NAPT Cache Creates - {#IFNAME}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.15.1.1.1.4.{#SNMPINDEX}'
+              key: 'naptCache.creates.[{#IFNAME}]'
+              tags:
+                - tag: Application
+                  value: NAPT
+            - uuid: 04964a35b9e84c7b82d437357eab9743
+              name: 'NAPT Cache Entries - {#IFNAME}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.15.1.1.1.2.{#SNMPINDEX}'
+              key: 'naptCache.entries.[{#IFNAME}]'
+              tags:
+                - tag: Application
+                  value: NAPT
+            - uuid: f8b335b734504c7a9fb5cd49f278ddc6
+              name: 'NAPT Cache Overflows - {#IFNAME}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.15.1.1.1.5.{#SNMPINDEX}'
+              key: 'naptCache.overflows.[{#IFNAME}]'
+              tags:
+                - tag: Application
+                  value: NAPT
+            - uuid: cacb13e74ee14643a066d804bd03d4d6
+              name: 'NAPT Cache Peak - {#IFNAME}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.15.1.1.1.3.{#SNMPINDEX}'
+              key: 'naptCache.peak.[{#IFNAME}]'
+              tags:
+                - tag: Application
+                  value: NAPT
+        - uuid: c08b20e4af07472898f04acb1e7a7ef7
+          name: Fan
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#FANINDEX},.1.3.6.1.4.1.119.2.3.84.2.3.1.1]'
+          key: 'pico.fan.[{#FANINDEX}]'
+          delay: 5m
+          lifetime: 1w
+          item_prototypes:
+            - uuid: de6bf354f629419897a9172970ae677d
+              name: 'Fan #{#FANINDEX} rpm'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.2.3.1.3.{#SNMPINDEX}'
+              key: 'pico.fan.rpm.[{#FANINDEX}]'
+              delay: 5m
+              history: 1w
+              trends: '0'
+              units: rpm
+              tags:
+                - tag: Application
+                  value: Fan
+            - uuid: c015be1587394b6c96b9c606cf06c62a
+              name: 'Fan #{#FANINDEX} Status'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.2.3.1.2.{#SNMPINDEX}'
+              key: 'pico.fan.status.[{#FANINDEX}]'
+              delay: 5m
+              history: 1w
+              trends: '0'
+              valuemap:
+                name: 'NEC Fan Status'
+              tags:
+                - tag: Application
+                  value: Fan
+              trigger_prototypes:
+                - uuid: 7802e76782ca4401a2f1405b89c7beac
+                  expression: 'last(/UNIVERGE IX/pico.fan.status.[{#FANINDEX}])=2'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/UNIVERGE IX/pico.fan.status.[{#FANINDEX}])=1'
+                  name: 'Fan #{#FANINDEX} is failure'
+                  priority: HIGH
+        - uuid: 4a49b0a0cde248859df3afa7fe570da5
+          name: PowerSupply
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#PSINDEX},.1.3.6.1.4.1.119.2.3.84.2.4.1.1]'
+          key: 'pico.powersupply.[{#PSINDEX}]'
+          delay: 5m
+          lifetime: 1w
+          item_prototypes:
+            - uuid: a0ed20dd823b45a3b9ecde9753c7b410
+              name: 'Power Supply Status'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.2.4.1.3.{#SNMPINDEX}'
+              key: 'powersupply.status.[{#PSINDEX}]'
+              delay: 5m
+              history: 1w
+              trends: '0'
+              valuemap:
+                name: 'NEC Power Supply Status'
+              tags:
+                - tag: Application
+                  value: Power
+              trigger_prototypes:
+                - uuid: 3e14a1f4932c47969daabde3d66a6d56
+                  expression: 'last(/UNIVERGE IX/powersupply.status.[{#PSINDEX}])=2'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/UNIVERGE IX/powersupply.status.[{#PSINDEX}])=1'
+                  name: 'Power Supply Module#{#PSINDEX} failure'
+                  priority: HIGH
+            - uuid: 7e6d860c791c4787ad8322c8a3b3cfd7
+              name: 'Power Supply Type'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.119.2.3.84.2.4.1.2.{#SNMPINDEX}'
+              key: 'powersupply.type.[{#PSINDEX}]'
+              delay: 5m
+              history: 1w
+              trends: '0'
+              valuemap:
+                name: 'NEC Power Supply Type'
+              tags:
+                - tag: Application
+                  value: Power
+      macros:
+        - macro: '{$CPU_WARN}'
+          value: '80'
+        - macro: '{$HIGH_TEMP_WARN}'
+          value: '55'
+        - macro: '{$MEM_WARN}'
+          value: '80'
+      valuemaps:
+        - uuid: 055f6cda10bf48a0aabc1f0e332ddbd4
+          name: 'NEC Fan Status'
+          mappings:
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: failure
+        - uuid: 911def1a02cf4a2a871b4e148dd6f112
+          name: 'NEC Power Supply Status'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: failure
+        - uuid: 46595265ae074da2be0e60cbe1dbd64e
+          name: 'NEC Power Supply Type'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed'
+            - value: '1'
+              newvalue: AC
+            - value: '2'
+              newvalue: PoE
