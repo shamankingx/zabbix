@@ -23,7 +23,7 @@ Configuration files:
 mkdir /opt/zabbix-backup/
 cp /etc/zabbix/zabbix_server.conf /opt/zabbix-backup/
 cp /etc/apache2/conf-enabled/zabbix.conf /opt/zabbix-backup/
-cp /etc/nginx/conf.f/zabbix.conf /opt/zabbix-backup/
+cp /etc/nginx/conf.d/zabbix.conf /opt/zabbix-backup/
 
 PHP files and Zabbix binaries:
 
