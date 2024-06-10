@@ -1,0 +1,92 @@
+Upgrade Zabbix from 6.4 to 7.0 LTS
+
+1 Stop Zabbix processes
+
+- Stop Zabbix server to make sure that no new data is inserted into database.
+
+```
+service zabbix-server stop
+```
+If upgrading Zabbix proxy, stop proxy too.
+
+```
+service zabbix-proxy stop
+```
+
+2 Back up the existing Zabbix database
+This is a very important step. Make sure that you have a backup of your database. It will help if the upgrade procedure fails (lack of disk space, power off, any unexpected problem).
+
+3 Back up configuration files, PHP files and Zabbix binaries
+Make a backup copy of Zabbix binaries, configuration files and the PHP file directory.
+
+Configuration files:
+
+//Code
+mkdir /opt/zabbix-backup/
+cp /etc/zabbix/zabbix_server.conf /opt/zabbix-backup/
+cp /etc/apache2/conf-enabled/zabbix.conf /opt/zabbix-backup/
+cp /etc/nginx/conf.d/zabbix.conf /opt/zabbix-backup/
+
+PHP files and Zabbix binaries:
+
+//Code
+cp -R /usr/share/zabbix/ /opt/zabbix-backup/
+cp -R /usr/share/zabbix-* /opt/zabbix-backup/
+
+4 Update repository configuration package
+To proceed with the update your current repository package has to be uninstalled.
+
+//Code
+rm -Rf /etc/apt/sources.list.d/zabbix.list.dpkg-dist
+rm -Rf /etc/apt/sources.list.d/zabbix.list
+cp /etc/apt/sources.list.d/zabbix.list.dpkg-dist /etc/apt/resources.list.d/zabbix.list
+
+
+Then install the new repository configuration package.
+
+On Ubuntu 22.04 run:
+
+//Code
+wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-1+ubuntu22.04_all.deb
+dpkg -i zabbix-release_7.0-1+ubuntu22.04_all.deb
+
+Update the repository information.
+
+//Code
+apt-get update
+
+Upgrade process
+To complete a successful Zabbix server upgrade on MySQL/MariaDB, you may require to set GLOBAL log_bin_trust_function_creators = 1 in MySQL if binary logging is enabled, there are no superuser privileges and log_bin_trust_function_creators = 1 is not set in MySQL configuration file.
+
+To set the variable using the MySQL console, run:
+
+//Code
+mysql> SET GLOBAL log_bin_trust_function_creators = 1;
+Once the upgrade has been successfully completed, this option can be disabled:
+
+//Code
+mysql> SET GLOBAL log_bin_trust_function_creators = 0;
+
+5 Upgrade Zabbix components
+To upgrade Zabbix components you may run something like:
+
+//Code
+apt-get install --only-upgrade zabbix-server-mysql zabbix-frontend-php zabbix-agent zabbix-get zabbix-nginx-conf zabbix-sql-scripts zabbix-web-service zabbix-release
+
+If using PostgreSQL, substitute mysql with pgsql in the command. If upgrading the proxy, substitute server with proxy in the command. If upgrading the Zabbix agent 2, substitute zabbix-agent with zabbix-agent2 in the command.
+
+Recheck installed package
+apt list --installed | grep zabbix
+
+zabbix-agent2/zabbix,now 1:7.0.0-1+ubuntu22.04 amd64 [installed]
+zabbix-frontend-php/zabbix,now 1:7.0.0-1+ubuntu22.04 all [installed]
+zabbix-get/zabbix,now 1:7.0.0-1+ubuntu22.04 amd64 [installed]
+zabbix-nginx-conf/zabbix,now 1:7.0.0-1+ubuntu22.04 all [installed]
+zabbix-release/zabbix,now 1:7.0-1+ubuntu22.04 all [installed]
+zabbix-server-mysql/zabbix,now 1:7.0.0-1+ubuntu22.04 amd64 [installed]
+zabbix-sql-scripts/zabbix,now 1:7.0.0-1+ubuntu22.04 all [installed]
+zabbix-web-service/zabbix,now 1:7.0.0-1+ubuntu22.04 amd64 [installed]
+
+Database upgrade
+//Code
+zabbix_server -c /etc/zabbix/zabbix_server.conf
