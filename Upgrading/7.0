@@ -4,8 +4,9 @@ Upgrade Zabbix from 6.4 to 7.0 LTS
 
 Stop Zabbix server to make sure that no new data is inserted into database.
 
-//Code
+'''
 service zabbix-server stop
+'''
 If upgrading Zabbix proxy, stop proxy too.
 
 //Code
