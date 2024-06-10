@@ -36,6 +36,8 @@ To proceed with the update your current repository package has to be uninstalled
 
 //Code
 rm -Rf /etc/apt/sources.list.d/zabbix.list.dpkg-dist
+rm -Rf /etc/apt/sources.list.d/zabbix.list
+cp /etc/apt/sources.list.d/zabbix.list.dpkg-dist /etc/apt/resources.list.d/zabbix.list
 
 
 Then install the new repository configuration package.
@@ -67,7 +69,7 @@ mysql> SET GLOBAL log_bin_trust_function_creators = 0;
 To upgrade Zabbix components you may run something like:
 
 //Code
-apt-get install --only-upgrade zabbix-server-mysql zabbix-frontend-php zabbix-agent2 zabbix-get zabbix-nginx-conf zabbix-sql-scripts zabbix-web-service zabbix-release
+apt-get install --only-upgrade zabbix-server-mysql zabbix-frontend-php zabbix-agent zabbix-get zabbix-nginx-conf zabbix-sql-scripts zabbix-web-service zabbix-release
 
 If using PostgreSQL, substitute mysql with pgsql in the command. If upgrading the proxy, substitute server with proxy in the command. If upgrading the Zabbix agent 2, substitute zabbix-agent with zabbix-agent2 in the command.
 
