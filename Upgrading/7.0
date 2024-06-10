@@ -2,15 +2,16 @@ Upgrade Zabbix from 6.4 to 7.0 LTS
 
 1 Stop Zabbix processes
 
-Stop Zabbix server to make sure that no new data is inserted into database.
+- Stop Zabbix server to make sure that no new data is inserted into database.
 
-'''
+```
 service zabbix-server stop
-'''
+```
 If upgrading Zabbix proxy, stop proxy too.
 
-//Code
+```
 service zabbix-proxy stop
+```
 
 2 Back up the existing Zabbix database
 This is a very important step. Make sure that you have a backup of your database. It will help if the upgrade procedure fails (lack of disk space, power off, any unexpected problem).
