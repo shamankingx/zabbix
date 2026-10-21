@@ -1,0 +1,139 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 846977d1dfed4968bc5f8bdb363285bc
+      name: 'Templates/Operating systems'
+  templates:
+    - uuid: 3b150e605eea4307a5742499fc91aa7d
+      template: 'Windows Battery Level by WMI'
+      name: 'Windows Battery Level by WMI'
+      description: |
+        Template for monitoring battery capacity on Windows devices via WMI (Win32_Battery).
+
+        Author:
+        - Developer: Warawuth Phralabraksa
+        - GitHub: https://github.com/shamankingx
+        - Email: shamankingx@hotmail.com
+
+        Requirements:
+        - Zabbix agent or agent 2 on target Windows machines with root\cimv2 read permissions.
+        - Host hardware must expose the Win32_Battery WMI class.
+
+        Macros:
+        - {$BATTERY.WARN.MIN}: Low battery threshold percentage (default: 20).
+        - {$BATTERY.CRIT.MIN}: Critical battery threshold percentage (default: 10).
+        - {$BATTERY.HYST.OFFSET}: Recovery buffer percentage to prevent alert flapping (default: 5).
+      groups:
+        - name: 'Templates/Operating systems'
+      items:
+        - uuid: 0c9e7627321841b691d7fe471fab9fb6
+          name: 'Windows: Battery level'
+          key: 'wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"]'
+          units: '%'
+          description: |
+            The battery capacity remaining drops below {$BATTERY.WARN.MIN}%. The Win32_Battery\EstimatedChargeRemaining 
+            metric is the estimated percentage of full battery charge remaining on the device. This value 
+            is a direct indicator of the host's power autonomy when operating without an external AC 
+            power supply. This warning indicates that the device has been running on battery power for an 
+            extended period or is experiencing rapid discharge. To prevent data loss, the device should 
+            be connected to an AC power source before reaching critical depletion.
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: 5c57ed0bbd1348f7aec135c55b6537a9
+              expression: 'last(/Windows Battery Level by WMI/wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"])<{$BATTERY.CRIT.MIN}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Windows Battery Level by WMI/wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"])>=({$BATTERY.CRIT.MIN}+{$BATTERY.HYST.OFFSET})'
+              name: 'Windows: Battery level is critically low'
+              event_name: 'Windows: Battery level is critically low ({ITEM.LASTVALUE})'
+              priority: HIGH
+              description: |
+                The battery capacity remaining drops below {$BATTERY.CRIT.MIN}%. The Win32_Battery\EstimatedChargeRemaining 
+                metric is the estimated percentage of full battery charge remaining on the device. This value 
+                indicates imminent system shutdown or involuntary hibernation by the Windows operating system 
+                to protect data integrity. This should never be allowed to reach 0% during operational hours. 
+                If AC power cannot be attached immediately, the administrator or user must gracefully shut down 
+                the host to prevent file system corruption or data loss.
+              type: MULTIPLE
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: capacity
+            - uuid: 50e5951bbf3b4c9e9f8dd824bc16ad31
+              expression: 'last(/Windows Battery Level by WMI/wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"])<{$BATTERY.WARN.MIN}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Windows Battery Level by WMI/wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"])>=({$BATTERY.WARN.MIN}+{$BATTERY.HYST.OFFSET})'
+              name: 'Windows: Battery level is low'
+              event_name: 'Windows: Battery level is low ({ITEM.LASTVALUE})'
+              priority: AVERAGE
+              description: |
+                The battery capacity remaining drops below {$BATTERY.WARN.MIN}%. The Win32_Battery\EstimatedChargeRemaining 
+                metric is the estimated percentage of full battery charge remaining on the device. This value 
+                is a direct indicator of the host's power autonomy when operating without an external AC 
+                power supply. This warning indicates that the device has been running on battery power for an 
+                extended period or is experiencing rapid discharge. To prevent data loss, the device should 
+                be connected to an AC power source before reaching critical depletion.
+              manual_close: 'YES'
+              dependencies:
+                - name: 'Windows: Battery level is critically low'
+                  expression: 'last(/Windows Battery Level by WMI/wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"])<{$BATTERY.CRIT.MIN}'
+                  recovery_expression: 'last(/Windows Battery Level by WMI/wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"])>=({$BATTERY.CRIT.MIN}+{$BATTERY.HYST.OFFSET})'
+              tags:
+                - tag: scope
+                  value: capacity
+      tags:
+        - tag: class
+          value: hardware
+        - tag: class
+          value: os
+        - tag: target
+          value: laptop
+        - tag: target
+          value: windows
+      macros:
+        - macro: '{$BATTERY.CRIT.MIN}'
+          value: '10'
+          description: 'Minimum battery percentage before triggering a Critical alert.'
+        - macro: '{$BATTERY.HYST.OFFSET}'
+          value: '5'
+          description: 'The buffer percentage added to the recovery threshold to prevent alert flapping.'
+        - macro: '{$BATTERY.WARN.MIN}'
+          value: '20'
+          description: 'Minimum battery percentage before triggering a Warning alert.'
+      dashboards:
+        - uuid: 769c47c1d5d84bfe84b85b81662cb1ad
+          name: 'Battery Level by WMI'
+          display_period: '60'
+          pages:
+            - widgets:
+                - type: svggraph
+                  name: 'Battery Level by WMI'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.color_palette
+                      value: '0'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Windows: Battery level'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: ZNQSB
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+  graphs:
+    - uuid: b6a41c86f65045c5b66825f6471d3dd1
+      name: 'Battery Level by WMI'
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 199C0D
+          calc_fnc: MIN
+          item:
+            host: 'Windows Battery Level by WMI'
+            key: 'wmi.get[root\cimv2,"Select EstimatedChargeRemaining from Win32_Battery"]'
